@@ -5,28 +5,18 @@ import abi from "./utils/WavePortal.json";
 
 const App = () => {
   const [currentAccount, setCurrentAccount] = useState("");
-  const [waveCount, setWave] = useState(0);
+  const [allWaves, setAllWaves] = useState(0);
   const contractAddress = "0xaa30E80d3533eaD6e7465525AB54E42DAEFa7A8b";
   const contractABI = abi.abi;
 
   const getWaveCount = async () => {
-    try {
-      const { ethereum } = window;
+    if (ethereum) {
+      const provider = new ethers.providers.Web3Provider(ethereum);
+      const signer = provider.getSigner();
+      const wavePortalContract = new ethers.Contract(contractAddress, contractABI, signer);
 
-      if (ethereum) {
-        const provider = new ethers.providers.Web3Provider(ethereum);
-        const signer = provider.getSigner();
-        const wavePortalContract = new ethers.Contract(contractAddress, contractABI, signer);
-        let count = await wavePortalContract.getTotalWaves();
-        setWave(count);
-        console.log("getWaveCount...", count.toNumber());
-      }
-      else {
-        console.log("Ethereum object doesn't exist!");
-      }
-    }
-    catch (error) {
-      console.log(error);
+      let count = await wavePortalContract.getTotalWaves();
+      setAllWaves(count);    // This will set the total wave count to the state
     }
   }
 
@@ -122,7 +112,7 @@ const App = () => {
         </div>
 
         <div className="bio">
-          Hi, thanks for visiting. I've got {waveCount} waves!
+          Hi, thanks for visiting. I've got {allWaves} waves!
         </div>
 
         <button className="waveButton" onClick={wave}>
